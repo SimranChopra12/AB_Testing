@@ -22,3 +22,6 @@ You display it
 Steps I followed:
 1) create an OPEN AI API key
 2) Creating a virtual env and installing dependencies: pip install -r requirements.txt
+3) created app.py
+4) created the basic structure: the user enters the experiment results and the LLM gives hypothesis, suggestions etc.
+5) the user can also enter 2 variants of an experiment to compare the results

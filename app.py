@@ -12,6 +12,10 @@ mode = st.radio(
     "Choose analysis type:",
     ["Single Experiment", "Compare Variants"]
 )
+primary_metric = st.selectbox(
+    "Select primary success metric:",
+    ["Retention", "Revenue", "Conversion", "Engagement"]
+)
 
 if mode == "Single Experiment":
     user_input = st.text_area("Desribe your experiment and enter your A/B test result:")
@@ -23,6 +27,11 @@ if mode == "Single Experiment":
 
             A user ran an A/B test and got this result:
             "{user_input}"
+
+            A user wants to focus on primary metric:
+            "{primary_metric}"
+
+            Focusing on the primary metric
 
             Return:
             - Hypothesis
