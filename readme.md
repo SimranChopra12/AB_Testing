@@ -2,7 +2,7 @@ What am i building?
 A tool that helps someone design and interpret A/B tests using AI
 
 Hi! I am simran and I am teaching myself 2 skills:
-A/b Testing
+A/b Testing &
 AI 
 
 This project uses streamlit for the UI, send an API request to OpenAI
