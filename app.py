@@ -2,6 +2,7 @@ import streamlit as st
 from openai import OpenAI
 import os
 from dotenv import load_dotenv
+import json
 
 # Load API key
 load_dotenv()
@@ -12,13 +13,19 @@ mode = st.radio(
     "Choose analysis type:",
     ["Single Experiment", "Compare Variants"]
 )
+
+if st.button("Try Example"):
+    user_input = "Improved onboarding, retention +5%, revenue -3%"
+    
 primary_metric = st.selectbox(
     "Select primary success metric:",
     ["Retention", "Revenue", "Conversion", "Engagement"]
 )
 
 if mode == "Single Experiment":
-    user_input = st.text_area("Desribe your experiment and enter your A/B test result:")
+    user_input = st.text_area("Describe your experiment and enter your A/B test result:")
+
+
 
     if st.button("Analyze"):
         if user_input:
@@ -33,11 +40,20 @@ if mode == "Single Experiment":
 
             Focusing on the primary metric
 
-            Return:
-            - Hypothesis
-            - Metric interpretation
-            - Additional metrics to check
-            - Recommendation
+            IMPORTANT:
+            - Return ONLY valid JSON
+            - Do NOT include any text before or after JSON
+            - Do NOT use markdown (no ```)
+
+            Return STRICT JSON:
+            {{
+                "summary": "...",
+                "hypothesis": "...",
+                "interpretation": "...",
+                "metrics": ["...", "..."],
+                "recommendation": "ship / iterate / rollback",
+                "confidence": "low / medium / high"
+            }}
             """
 
             response = client.chat.completions.create(
@@ -45,13 +61,45 @@ if mode == "Single Experiment":
                 messages=[{"role": "user", "content": prompt}]
             )
 
-            st.write(response.choices[0].message.content)
+            output = response.choices[0].message.content.strip()
+            output = output.replace("```json", "").replace("```", "")
+
+            try:
+                data = json.loads(output)
+
+                st.subheader("📌 Summary")
+                st.write(data["summary"])
+
+                st.subheader("🧠 Hypothesis")
+                st.write(data["hypothesis"])
+
+                st.subheader("📊 Interpretation")
+                st.write(data["interpretation"])
+
+                st.subheader("📈 Metrics to Check")
+                for m in data["metrics"]:
+                    st.write(f"- {m}")
+
+                st.subheader("🔍 Confidence")
+                st.write(data["confidence"])
+                rec = data["recommendation"].lower()
+                if "ship" in rec:
+                    st.success("🚀 Ship")
+                elif "iterate" in rec:
+                    st.warning("🔁 Iterate")
+                else:
+                    st.error("⛔ Rollback")
+
+            except Exception as e:
+                st.error("JSON parsing failed")
+                st.write(output)
+
 
 elif mode == "Compare Variants":
         variant_a = st.text_area("Variant A result")
         variant_b = st.text_area("Variant B result")
         if st.button("Compare"):
-            if mode == "Compare Variants" and variant_a and variant_b:
+            if mode == "Compare Variants":
                 prompt = f"""
                 You are a senior product analyst.
 
@@ -63,7 +111,7 @@ elif mode == "Compare Variants":
                 Variant B:
                 {variant_b}
 
-                Return in JSON:
+                Return STRICT JSON:
 
                 {{
                 "winner": "A or B",
@@ -77,7 +125,27 @@ elif mode == "Compare Variants":
                 messages=[{"role": "user", "content": prompt}]
             )
 
-            st.write(response.choices[0].message.content)
+            output = response.choices[0].message.content.strip()
+            output = output.replace("```json", "").replace("```", "")
+
+            try:
+                data = json.loads(output)
+
+                st.subheader("🏆 Winner")
+                st.write(data["winner"])
+
+                st.subheader("🧠 Reason")
+                st.write(data["reason"])
+
+                st.subheader("⚠️ Risks")
+                st.write(data["risks"])
+
+                st.subheader("✅ Recommendation")
+                st.write(data["recommendation"])
+
+            except Exception as e:
+                st.error("JSON parsing failed")
+                st.write(output)
 
         else:
             st.warning("Please fill both variants.")
