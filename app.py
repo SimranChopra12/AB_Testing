@@ -16,16 +16,36 @@ mode = st.radio(
 
 if st.button("Try Example"):
     user_input = "Improved onboarding, retention +5%, revenue -3%"
-    
+
 primary_metric = st.selectbox(
     "Select primary success metric:",
     ["Retention", "Revenue", "Conversion", "Engagement"]
 )
+if mode == "Single Experiment":
+    st.write("To try out this application, try using these buttons:")
+
+    # Initialize session state
+    if "user_input" not in st.session_state:
+        st.session_state.user_input = ""
+
+    
+    col1, col2 = st.columns(2)
+
+    if col1.button("Retention ↑ Revenue ↓"):
+        st.session_state.user_input = "Improved onboarding, retention +5%, revenue -3%"
+
+    if col2.button("Revenue ↑ Retention ↓"):
+        st.session_state.user_input = "Added paywall, revenue +6%, retention -2%"
+
+    # Input box (gets filled from session state)
+
+    user_input = st.text_area(
+        "Or describe your experiment and enter your A/B test result:",
+        value=st.session_state.user_input
+    )
 
 if mode == "Single Experiment":
-    user_input = st.text_area("Describe your experiment and enter your A/B test result:")
-
-
+    #user_input = st.text_area("Describe your experiment and enter your A/B test result:")
 
     if st.button("Analyze"):
         if user_input:
@@ -98,6 +118,7 @@ if mode == "Single Experiment":
 elif mode == "Compare Variants":
         variant_a = st.text_area("Variant A result")
         variant_b = st.text_area("Variant B result")
+
         if st.button("Compare"):
             if mode == "Compare Variants":
                 prompt = f"""
