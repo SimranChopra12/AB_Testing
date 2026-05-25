@@ -4,9 +4,12 @@ import os
 from dotenv import load_dotenv
 import json
 
+if st.query_params.get("health") == "1":
+    st.write("ok")
+    st.stop()
+
 # Load API key
-load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 st.title("📊 AI A/B Test Interpreter")
 mode = st.radio(
